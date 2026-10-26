@@ -1,4 +1,4 @@
-name: toastr
+name: toastr_local
 description: Toastr - 100% Serverless On-Device Food & Grocery Price Comparison App (Swiggy, Zomato, Blinkit, Zepto, Instamart, BigBasket)
 publish_to: 'none'
 version: 2.0.28+60
