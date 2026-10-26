@@ -21,12 +21,12 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.27.4'
           channel: 'stable'
 
       - name: Bootstrap Android & iOS platform directories if needed
         run: |
           flutter create --platforms=android,ios --org com.atinnovations .
-          # Ensure internet & GPS permissions exist in AndroidManifest.xml
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           if ! grep -q "ACCESS_FINE_LOCATION" "$MANIFEST"; then
             sed -i 's/<application/<uses-permission android:name="android.permission.INTERNET"\/>\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"\/>\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"\/>\n    <application/' "$MANIFEST"
@@ -35,6 +35,8 @@ jobs:
       - name: Install dependencies & Build APK
         run: |
           flutter pub get
+          # Patch any plugin build.gradle using deprecated proguard-android.txt
+          find ~/.pub-cache -name "build.gradle" -exec sed -i "s/proguard-android.txt/proguard-android-optimize.txt/g" {} + || true
           flutter build apk --release
 
       - name: Upload Android APK Artifact
@@ -52,6 +54,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.27.4'
           channel: 'stable'
 
       - name: Bootstrap iOS platform & permissions
@@ -64,9 +67,20 @@ jobs:
       - name: Build iOS Release (No Codesign) & Package .ipa
         run: |
           flutter pub get
-          flutter build ios --release --no-codesign
+          flutter build ios --config-only --release --no-codesign
+          cd ios
+          xcodebuild -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath ../build/ios_derived \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM=""
+          cd ..
           mkdir -p Payload
-          cp -r build/ios/iphoneos/Runner.app Payload/
+          cp -r build/ios_derived/Build/Products/Release-iphoneos/Runner.app Payload/
           zip -r Toastr-iOS-Unsigned.ipa Payload
 
       - name: Upload iOS IPA Artifact
