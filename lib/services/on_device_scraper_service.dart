@@ -536,11 +536,18 @@ class OnDeviceScraperService {
             (node['title'] is Map ? node['title']['text'] : node['title']) ??
             node['desc'];
 
+        final pricingDiscount = (node['pricing'] is Map && node['pricing']['discount'] is Map)
+            ? node['pricing']['discount'] as Map
+            : null;
+        final primPrice = (pricingDiscount != null && pricingDiscount['prim_price'] is Map)
+            ? pricingDiscount['prim_price'] as Map
+            : null;
+
         final rawPrice = node['price'] ??
             node['selling_price'] ??
             node['offer_price'] ??
             node['sp'] ??
-            (node['pricing'] is Map ? node['pricing']['discount']?['prim_price']?['sp'] : null);
+            (primPrice != null ? primPrice['sp'] : null);
 
         if (rawName is String && rawName.trim().length > 2 && rawPrice != null) {
           double price = _extractNumber(rawPrice.toString(), fallback: -1);
@@ -555,7 +562,7 @@ class OnDeviceScraperService {
               seenNames.add(key);
               final rawMrp = node['mrp'] ??
                   node['normal_price'] ??
-                  (node['pricing'] is Map ? node['pricing']['discount']?['mrp'] : null) ??
+                  (pricingDiscount != null ? pricingDiscount['mrp'] : null) ??
                   price;
               double mrp = _extractNumber(rawMrp.toString(), fallback: price);
               if (mrp > 10000 && price < 1000) mrp = mrp / 100.0;
