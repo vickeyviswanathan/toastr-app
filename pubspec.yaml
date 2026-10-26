@@ -1,0 +1,36 @@
+name: toastr
+description: Toastr - 100% Serverless On-Device Food & Grocery Price Comparison App (Swiggy, Zomato, Blinkit, Zepto, Instamart, BigBasket)
+publish_to: 'none'
+version: 2.0.28+60
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.2
+  dio: ^5.4.3+1
+  flutter_inappwebview: ^6.0.0
+  neopop: ^1.0.2
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.10+1
+  cached_network_image: ^3.3.1
+  shared_preferences: ^2.2.3
+  geolocator: ^12.0.0
+  geocoding: ^3.0.0
+  shimmer: ^3.0.0
+  url_launcher: ^6.3.0
+  phosphor_flutter: ^2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/svg/
